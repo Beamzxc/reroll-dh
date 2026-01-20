@@ -4,13 +4,13 @@
 
 print("========================================")
 print("🎯 AUTO REROLL FIEND SYSTEM")
-print("⚡ Optimized for 5 Windows")
+print("⚡ Optimized for 10 Windows")
 print("========================================")
 
--- สุ่มดีเลย์เริ่มต้น (0-10 วินาที)
-local initialDelay = math.random(0, 10)
+-- สุ่มดีเลย์เริ่มต้น (0-20 วินาที) สำหรับ 10 จอ
+local initialDelay = math.random(0, 20)
 if initialDelay > 0 then
-    print("⏳ รอ " .. initialDelay .. " วินาที (กระจายจอ)")
+    print("⏳ รอ " .. initialDelay .. " วินาที (กระจาย 10 จอ)")
     wait(initialDelay)
 end
 
@@ -22,9 +22,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- =====================================
 local CONFIG = {
     WEBHOOK_URL = "https://discord.com/api/webhooks/1462944559045804225/qO1XQ6KjCZpWGaRiqX-8A-HeKq2Rpil1kZXUUaeOCDx9aJ_N02QgszWkX3osyC6cQTv9",
-    WEBHOOK_COOLDOWN = 5, -- วินาที
-    TIMEOUT_GUI = 8,
-    TIMEOUT_SHORT = 6,
+    WEBHOOK_COOLDOWN = 10, -- วินาที (เพิ่มจาก 5 เป็น 10 สำหรับ 10 จอ)
+    TIMEOUT_GUI = 6, -- ลดจาก 8 เป็น 6 วินาที
+    TIMEOUT_SHORT = 4, -- ลดจาก 6 เป็น 4 วินาที
     RARE_FIENDS = {"Gun", "Angel"},
     ALL_FIENDS = {"Nail", "Shark", "Violence", "Blood", "Gun", "Angel"}
 }
