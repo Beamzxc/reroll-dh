@@ -373,10 +373,12 @@ local function selectCharacter()
     end
     wait(1)
     
-    -- ขั้นที่ 4: ยืนยัน (Confirm/Next/Create)
-    local confirmed = clickButton("confirm", 8) or 
-                     clickButton("next", 8) or 
-                     clickButton("create", 8)
+    -- ขั้นที่ 4: ยืนยัน (COMPLETE เป็นชื่อจริง)
+    local confirmed = clickButton("complete", 10) or 
+                     clickButton("submit", 5) or 
+                     clickButton("confirm", 5) or
+                     clickButton("next", 5) or
+                     clickButton("create", 5)
     
     if confirmed then
         print("✓ สร้างตัวละครสำเร็จ!")
