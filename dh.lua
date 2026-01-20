@@ -351,38 +351,110 @@ local function selectCharacter()
         return false
     end
     
-    -- เริ่มกระบวนการสร้างตัวละคร
-    local randomName = generateRandomName()
-    print("📝 ชื่อที่สุ่ม:", randomName)
-    
-    -- ขั้นที่ 1: ใส่ชื่อ
-    if not inputName(randomName) then
+    -- ฟังก์ชันตรวจสอบว่าชื่อถูก Censor หรือไม่
+    local function isNameCensored()
+        wait(1) -- รอ warning แสดง
+        
+        local success, descendants = pcall(function()
+            return playerGui:GetDescendants()
+        end)
+        
+        if not success then
+            return false
+        end
+        
+        for _, gui in pairs(descendants) do
+            if gui:IsA("TextLabel") and gui.Visible then
+                local text = string.upper(gui.Text or "")
+                
+                -- ตรวจหาคำว่า CENSORED, WARNING, หรือคำที่เกี่ยวข้อง
+                if string.find(text, "CENSORED") or 
+                   string.find(text, "NAME") and string.find(text, "INVALID") or
+                   string.find(text, "INAPPROPRIATE") then
+                    print("⚠ พบ warning: " .. gui.Text)
+                    return true
+                end
+            end
+        end
+        
         return false
     end
-    wait(1)
-    
-    -- ขั้นที่ 2: เลือกเพศ (Male)
-    if not clickButton("male", 10) then
+            wait(0.3)
+            
+            if textBox.Text == name then
+                print("✓ ใส่ชื่อสำเร็จ:", textBox.Text)
+                
+                pcall(function()
+                    for _, connection in pairs(getconnections(textBox.FocusLost)) do
+                        connection:Fire()
+                    end
+                end)
+                
+                wait(0.3)
+                return true
+            else
+                print("⚠ ลองใหม่... (" .. attempts .. "/" .. maxAttempts .. ")")
+                wait(0.5)
+            end
+        end
+        
+        print("❌ ไม่สามารถใส่ชื่อได้")
         return false
     end
-    wait(1)
     
-    -- ขั้นที่ 3: เลือก Race (Fiend)
-    if not clickButton("fiend", 10) then
-        return false
-    end
-    wait(1)
+    -- เริ่มกระบวนการสร้างตัวละคร (มีการลองชื่อใหม่ถ้าถูก Censor)
+    local maxNameRetries = 5 -- ลองชื่อใหม่สูงสุด 5 ครั้ง
+    local nameRetryCount = 0
+    local randomName = ""
+    local creationSuccess = false
     
-    -- ขั้นที่ 4: ยืนยัน (COMPLETE เป็นชื่อจริง)
-    local confirmed = clickButton("complete", 10) or 
-                     clickButton("submit", 5) or 
-                     clickButton("confirm", 5) or
-                     clickButton("next", 5) or
-                     clickButton("create", 5)
-    
-    if confirmed then
-        print("✓ สร้างตัวละครสำเร็จ!")
-        return true
+    while nameRetryCount < maxNameRetries and not creationSuccess do
+        nameRetryCount = nameRetryCount + 1
+        
+        -- สุ่มชื่อ
+        randomName = generateRandomName()
+        print("========================================")
+        print("📝 ชื่อที่สุ่ม (" .. nameRetryCount .. "/" .. maxNameRetries .. "): " .. randomName)
+        print("========================================")
+        
+        -- ขั้นที่ 1: ใส่ชื่อ
+        if not inputName(randomName) then
+            return false
+        end
+        wait(1)
+        
+        -- ขั้นที่ 2: เลือก Male (เลือกแค่ครั้งแรก)
+        if nameRetryCount == 1 then
+            if not clickButton("male", 10) then
+                return false
+            end
+            wait(1)
+            
+            -- ขั้นที่ 3: เลือก Race (Fiend)
+            if not clickButton("fiend", 10) then
+                return false
+            end
+            wait(1)
+        end
+        
+        -- ขั้นที่ 4: ยืนยัน (COMPLETE เป็นชื่อจริง)
+        local confirmed = clickButton("complete", 10) or 
+                         clickButton("submit", 5) or 
+                         clickButton("confirm", 5) or
+                         clickButton("next", 5) or
+                         clickButton("create", 5)
+        
+        if confirmed then
+            -- ตรวจสอบว่าชื่อถูก Censor หรือไม่
+            if isNameCensored() then
+                print("🔁 ชื่อถูก Censor - ลองชื่อใหม่...")
+                wait(2)
+                -- Loop จะรันอีกครั้งด้วยชื่อใหม่
+            else
+                print("✓ สร้างตัวละครสำเร็จ!")
+                creationSuccess = true
+                return true
+            end
     else
         print("❌ ไม่พบปุ่มยืนยัน - ลองเรียก Remote...")
         
